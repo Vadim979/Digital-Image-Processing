@@ -64,6 +64,8 @@
             this.заполнениеОбластиToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.утончениеToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.построениеОстоваToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.тестовыеToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.выделениеГраницToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mask3x3 = new System.Windows.Forms.RadioButton();
             this.mask5x5 = new System.Windows.Forms.RadioButton();
             this.mask7x7 = new System.Windows.Forms.RadioButton();
@@ -71,6 +73,8 @@
             this.erosionGroup = new System.Windows.Forms.GroupBox();
             this.applyButton = new System.Windows.Forms.Button();
             this.changeButton = new System.Windows.Forms.Button();
+            this.closeFillModeButton = new System.Windows.Forms.Button();
+            this.эрозияToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.originalImageBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.alteredImageBox)).BeginInit();
             this.menuStrip.SuspendLayout();
@@ -86,6 +90,7 @@
             this.originalImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.originalImageBox.TabIndex = 0;
             this.originalImageBox.TabStop = false;
+            this.originalImageBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.originalImageBox_MouseClick);
             // 
             // alteredImageBox
             // 
@@ -105,7 +110,8 @@
             this.histogrammsToolStripMenuItem,
             this.фильтрацияToolStripMenuItem,
             this.выделениеКонтуровToolStripMenuItem,
-            this.морфологическаяОбработкаToolStripMenuItem});
+            this.морфологическаяОбработкаToolStripMenuItem,
+            this.тестовыеToolStripMenuItem});
             this.menuStrip.Location = new System.Drawing.Point(0, 0);
             this.menuStrip.Name = "menuStrip";
             this.menuStrip.Size = new System.Drawing.Size(915, 24);
@@ -350,18 +356,37 @@
             this.заполнениеОбластиToolStripMenuItem.Name = "заполнениеОбластиToolStripMenuItem";
             this.заполнениеОбластиToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
             this.заполнениеОбластиToolStripMenuItem.Text = "Заполнение области";
+            this.заполнениеОбластиToolStripMenuItem.Click += new System.EventHandler(this.заполнениеОбластиToolStripMenuItem_Click);
             // 
             // утончениеToolStripMenuItem
             // 
             this.утончениеToolStripMenuItem.Name = "утончениеToolStripMenuItem";
             this.утончениеToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
             this.утончениеToolStripMenuItem.Text = "Утончение";
+            this.утончениеToolStripMenuItem.Click += new System.EventHandler(this.утончениеToolStripMenuItem_Click);
             // 
             // построениеОстоваToolStripMenuItem
             // 
             this.построениеОстоваToolStripMenuItem.Name = "построениеОстоваToolStripMenuItem";
             this.построениеОстоваToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
             this.построениеОстоваToolStripMenuItem.Text = "Построение остова";
+            this.построениеОстоваToolStripMenuItem.Click += new System.EventHandler(this.построениеОстоваToolStripMenuItem_Click);
+            // 
+            // тестовыеToolStripMenuItem
+            // 
+            this.тестовыеToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.выделениеГраницToolStripMenuItem,
+            this.эрозияToolStripMenuItem1});
+            this.тестовыеToolStripMenuItem.Name = "тестовыеToolStripMenuItem";
+            this.тестовыеToolStripMenuItem.Size = new System.Drawing.Size(71, 20);
+            this.тестовыеToolStripMenuItem.Text = "Тестовые";
+            // 
+            // выделениеГраницToolStripMenuItem
+            // 
+            this.выделениеГраницToolStripMenuItem.Name = "выделениеГраницToolStripMenuItem";
+            this.выделениеГраницToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.выделениеГраницToolStripMenuItem.Text = "Выделение границ";
+            this.выделениеГраницToolStripMenuItem.Click += new System.EventHandler(this.выделениеГраницToolStripMenuItem_Click);
             // 
             // mask3x3
             // 
@@ -441,11 +466,29 @@
             this.changeButton.UseVisualStyleBackColor = true;
             this.changeButton.Click += new System.EventHandler(this.changeButton_Click);
             // 
+            // closeFillModeButton
+            // 
+            this.closeFillModeButton.Location = new System.Drawing.Point(671, 494);
+            this.closeFillModeButton.Name = "closeFillModeButton";
+            this.closeFillModeButton.Size = new System.Drawing.Size(232, 45);
+            this.closeFillModeButton.TabIndex = 10;
+            this.closeFillModeButton.Text = "Выйти из режима заполнения областей";
+            this.closeFillModeButton.UseVisualStyleBackColor = true;
+            this.closeFillModeButton.Click += new System.EventHandler(this.closeFillModeButton_Click);
+            // 
+            // эрозияToolStripMenuItem1
+            // 
+            this.эрозияToolStripMenuItem1.Name = "эрозияToolStripMenuItem1";
+            this.эрозияToolStripMenuItem1.Size = new System.Drawing.Size(177, 22);
+            this.эрозияToolStripMenuItem1.Text = "Эрозия";
+            this.эрозияToolStripMenuItem1.Click += new System.EventHandler(this.эрозияToolStripMenuItem1_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(915, 564);
+            this.Controls.Add(this.closeFillModeButton);
             this.Controls.Add(this.changeButton);
             this.Controls.Add(this.erosionGroup);
             this.Controls.Add(this.alteredImageBox);
@@ -510,6 +553,10 @@
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem doToolStripMenuItem;
         private System.Windows.Forms.Button changeButton;
+        private System.Windows.Forms.Button closeFillModeButton;
+        private System.Windows.Forms.ToolStripMenuItem тестовыеToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem выделениеГраницToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem эрозияToolStripMenuItem1;
     }
 }
 

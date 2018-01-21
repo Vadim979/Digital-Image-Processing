@@ -72,8 +72,8 @@ namespace DIP_1
 
         private void ImpulsiveNoise(double noiseLevel)
         {
-            int[,] randomMatrix = new int[originalPictureBox.Image.Width, originalPictureBox.Image.Height];
-            int[,] originalImageBrightness = GetBrightnessMatrix(noisedPictureBox.Image);
+            byte[,] randomMatrix = new byte[originalPictureBox.Image.Width, originalPictureBox.Image.Height];
+            byte[,] originalImageBrightness = GetBrightnessMatrix(noisedPictureBox.Image);
 
             long pictureEnergy = 0;
 
@@ -91,10 +91,10 @@ namespace DIP_1
             //if (M > originalPictureBox.Image.Width * originalPictureBox.Image.Height)
             //    M = originalPictureBox.Image.Width * originalPictureBox.Image.Height;
 
-            for(int i = 0; i < M; i++)
+            for (int i = 0; i < M; i++)
             {
                 int[] coordiantes = NoiseCoordinates();
-                randomMatrix[coordiantes[0], coordiantes[1]] = random.Next((int)randomRange.Value);
+                randomMatrix[coordiantes[0], coordiantes[1]] = (byte)random.Next((int)randomRange.Value);
             }
 
             Bitmap template = new Bitmap(originalPictureBox.Image);
@@ -118,8 +118,8 @@ namespace DIP_1
 
         private void AdditiveImpulsiveNoise(string type)
         {
-            int[,] originalImageBrightness = GetBrightnessMatrix(noisedPictureBox.Image);
-            int[,] randomMatrix = originalImageBrightness;
+            byte[,] originalImageBrightness = GetBrightnessMatrix(noisedPictureBox.Image);
+            byte[,] randomMatrix = (byte[,])originalImageBrightness.Clone();
             long pictureEnergy = 0;
 
             for (int x = 0; x < originalPictureBox.Image.Width; x++)
@@ -133,7 +133,7 @@ namespace DIP_1
             double noisinessPercent = (double)percentOfNoisiness.Value / 100.0;
             int numOfPixels = (int)(originalPictureBox.Image.Width * originalPictureBox.Image.Height * noisinessPercent);
 
-            for(int i = 0; i < numOfPixels; i++)
+            for (int i = 0; i < numOfPixels; i++)
             {
                 int len = random.Next(2, 5);
                 int a = random.Next(0, originalPictureBox.Image.Width - len);
@@ -154,7 +154,7 @@ namespace DIP_1
                         randomMatrix[a + j, b] = 255;
                     }
                 }
-                else
+                else if (originalImageBrightness[a, b] >= 128)
                 {
                     for (int j = 0; j < len; j++)
                     {
@@ -186,7 +186,7 @@ namespace DIP_1
         private void AdditiveNoise(double noiseLevel)
         {
             int[,] randomMatrix = GetRandomMatrix(originalPictureBox.Image.Width, originalPictureBox.Image.Height);
-            int[,] originalImageBrightness = GetBrightnessMatrix(noisedPictureBox.Image);
+            byte[,] originalImageBrightness = GetBrightnessMatrix(noisedPictureBox.Image);
 
             int noiseEnergy = 0;
             int pictureEnergy = 0;
@@ -221,16 +221,16 @@ namespace DIP_1
             noisedPictureBox.Image = template;
         }
 
-        public static int[,] GetBrightnessMatrix(Image image)
+        public static byte[,] GetBrightnessMatrix(Image image)
         {
-            int[,] matrix = new int[image.Width, image.Height];
+            byte[,] matrix = new byte[image.Width, image.Height];
             
             Bitmap bmp10 = new Bitmap(image);
             for (int x = 0; x < image.Width; x++)
             {
                 for (int y = 0; y < image.Height; y++)
                 {
-                    matrix[x, y] = (int)(bmp10.GetPixel(x, y).GetBrightness() * 255); 
+                    matrix[x, y] = (byte)(bmp10.GetPixel(x, y).GetBrightness() * 255); 
                 }
             }
 

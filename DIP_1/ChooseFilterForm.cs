@@ -57,16 +57,16 @@ namespace DIP_1
 
         private void UseFirstMask()
         {
-            int[,] imageBrightness = NoiseForm.GetBrightnessMatrix(image);
+            byte[,] imageBrightness = NoiseForm.GetBrightnessMatrix(image);
 
             int width = imageBrightness.GetLength(0);
             int height = imageBrightness.GetLength(1);
-            
-            for(int i = 0; i < width; i++)
+
+            for (int i = 0; i < width; i++)
             {
-                for(int j = 1; j < height - 1; j++)
+                for (int j = 1; j < height - 1; j++)
                 {
-                    int[] array = new int[3] { imageBrightness[i, j - 1], imageBrightness[i, j], imageBrightness[i, j+1] };
+                    byte[] array = new byte[3] { imageBrightness[i, j - 1], imageBrightness[i, j], imageBrightness[i, j + 1] };
                     imageBrightness[i, j] = array.OrderBy(q => q).ToArray()[1];
                 }
             }
@@ -75,16 +75,16 @@ namespace DIP_1
 
         private void UseSecondMask()
         {
-            int[,] imageBrightness = NoiseForm.GetBrightnessMatrix(image);
+            byte[,] imageBrightness = NoiseForm.GetBrightnessMatrix(image);
 
             int width = imageBrightness.GetLength(0);
             int height = imageBrightness.GetLength(1);
-            int[,] t = new int[width - 2, height - 2];
+            byte[,] t = new byte[width - 2, height - 2];
             for (int i = 1; i < width - 1; i++)
             {
                 for (int j = 1; j < height - 1; j++)
                 {
-                    int[] array = new int[] {imageBrightness[i - 1, j + 1], imageBrightness[i, j + 1], imageBrightness[i + 1, j + 1],
+                    byte[] array = new byte[] {imageBrightness[i - 1, j + 1], imageBrightness[i, j + 1], imageBrightness[i + 1, j + 1],
                                                 imageBrightness[i - 1, j], imageBrightness[i, j], imageBrightness[i + 1, j],
                                               imageBrightness[i - 1, j - 1], imageBrightness[i, j - 1], imageBrightness[i + 1, j - 1]};
                     t[i - 1, j - 1] = array.OrderBy(q => q).ToArray()[5];
@@ -95,16 +95,16 @@ namespace DIP_1
 
         private void UseThirdMask()
         {
-            int[,] br = NoiseForm.GetBrightnessMatrix(image);
+            byte[,] br = NoiseForm.GetBrightnessMatrix(image);
 
             int width = br.GetLength(0);
             int height = br.GetLength(1);
-            int[,] t = new int[width - 4, height - 4];
+            byte[,] t = new byte[width - 4, height - 4];
             for (int i = 2; i < width - 2; i++)
             {
                 for (int j = 2; j < height - 2; j++)
                 {
-                    int[] array = new int[] {
+                    byte[] array = new byte[] {
                                                        br[i, j + 2],
                                     br[i - 1, j + 1], br[i, j + 1], br[i + 1, j + 1],
                         br[i - 2, j], br[i - 1, j], br[i, j], br[i + 1, j], br[i + 2, j],
@@ -119,16 +119,16 @@ namespace DIP_1
 
         private void UseFourthMask()
         {
-            int[,] br = NoiseForm.GetBrightnessMatrix(image);
+            byte[,] br = NoiseForm.GetBrightnessMatrix(image);
 
             int width = br.GetLength(0);
             int height = br.GetLength(1);
-            int[,] t = new int[width - 4, height - 4];
+            byte[,] t = new byte[width - 4, height - 4];
             for (int i = 2; i < width - 2; i++)
             {
                 for (int j = 2; j < height - 2; j++)
                 {
-                    int[] array = new int[] {
+                    byte[] array = new byte[] {
                         br[i - 2, j + 2],  br[i - 1, j + 2], br[i, j + 2], br[i + 1, j + 2], br[i + 2, j + 2],
                         br[i - 2, j + 1],  br[i - 1, j + 1], br[i, j + 1], br[i + 1, j + 1], br[i + 2, j + 1],
                         br[i - 2, j],       br[i - 1, j],    br[i, j],     br[i + 1, j],      br[i + 2, j],

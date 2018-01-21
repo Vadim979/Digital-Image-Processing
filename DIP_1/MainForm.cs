@@ -20,6 +20,9 @@ namespace DIP_1
         public static int height;
         public static List<PointsPair> pointsList;
         public int N = 3;                                      // Размер окна для метода К-ближайших соседей
+
+        private byte[,] paintedOver;
+
         public MainForm()
         {
             InitializeComponent();
@@ -99,7 +102,7 @@ namespace DIP_1
             return frequency;
         }
 
-        public static Bitmap GetImageFromMatrix(int[,] g)
+        public static Bitmap GetImageFromMatrix(byte[,] g)
         {
             Bitmap template = new Bitmap(g.GetLength(0), g.GetLength(1));
 
@@ -390,9 +393,9 @@ namespace DIP_1
             noiseForm.ShowDialog();
         }
 
-        private void LocalAveraging(int[,] f)
+        private void LocalAveraging(byte[,] f)
         {
-            int[,] g = new int[originalImageBox.Image.Width - 2, originalImageBox.Image.Height - 2];
+            byte[,] g = new byte[originalImageBox.Image.Width - 2, originalImageBox.Image.Height - 2];
             double R;
             for (int x = 1; x < originalImageBox.Image.Width - 1; x++)
             {
@@ -402,7 +405,7 @@ namespace DIP_1
                                +2 * f[x - 1, y] + 4 * f[x, y] + 2 * f[x + 1, y] +
                                +f[x - 1, y + 1] + 2 * f[x, y + 1] + f[x + 1, y + 1])
                                / 16;
-                    g[x - 1, y - 1] = (int)R;
+                    g[x - 1, y - 1] = (byte)R;
                 }
             }
 
@@ -411,7 +414,7 @@ namespace DIP_1
 
         private void локальноеУсреднениеToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            int[,] f = NoiseForm.GetBrightnessMatrix(originalImageBox.Image);
+            byte[,] f = NoiseForm.GetBrightnessMatrix(originalImageBox.Image);
             LocalAveraging(f);
         }
 
@@ -426,13 +429,13 @@ namespace DIP_1
             setN.Owner = this;
             setN.ShowDialog();
 
-            int[,] f = NoiseForm.GetBrightnessMatrix(originalImageBox.Image);
+            byte[,] f = NoiseForm.GetBrightnessMatrix(originalImageBox.Image);
             KNearestNeighbors(f);
         }
 
-        private void KNearestNeighbors(int[,] f)
+        private void KNearestNeighbors(byte[,] f)
         {
-            int[,] g = new int[f.GetLength(0) - 2, f.GetLength(1) - 2];
+            byte[,] g = new byte[f.GetLength(0) - 2, f.GetLength(1) - 2];
             double R;
             for (int x = 1; x < f.GetLength(0) - 1; x++)
             {
@@ -442,22 +445,22 @@ namespace DIP_1
                        +f[x - 1, y] + f[x + 1, y] +
                        +f[x - 1, y + 1] + f[x, y + 1] + f[x + 1, y + 1]);
                     R /= (N * N - 1);
-                    g[x - 1, y - 1] = (int)R;
+                    g[x - 1, y - 1] = (byte)R;
                 }
             }
 
             alteredImageBox.Image = GetImageFromMatrix(g);
         }
 
-        private void SmoothingOver(int[,] f)
+        private void SmoothingOver(byte[,] f)
         {
-            int[,] g = new int[f.GetLength(0) - 4, f.GetLength(1) - 4];
+            byte[,] g = new byte[f.GetLength(0) - 4, f.GetLength(1) - 4];
 
             for (int x = 2; x < f.GetLength(0) - 2; x++)
             {
                 for (int y = 2; y < f.GetLength(1) - 2; y++)
                 {
-                    int[,] window = new int[5, 5] { {f[x - 2, y - 2], f[x - 1, y - 2], f[x, y - 2], f[x + 1, y - 2], f[x + 2, y - 2] },
+                    byte[,] window = new byte[5, 5] { {f[x - 2, y - 2], f[x - 1, y - 2], f[x, y - 2], f[x + 1, y - 2], f[x + 2, y - 2] },
                                                  {f[x - 2, y - 1], f[x - 1, y - 1], f[x, y - 1], f[x + 1, y - 1], f[x + 2, y - 1] },
                                                  {f[x - 2, y]    , f[x - 1 , y]   , f[x , y]   , f[x + 1, y]    , f[x + 2, y]     },
                                                  {f[x - 2, y + 1], f[x - 1, y + 1], f[x, y + 1], f[x + 1, y + 1], f[x + 2, y + 1] },
@@ -468,7 +471,7 @@ namespace DIP_1
             alteredImageBox.Image = GetImageFromMatrix(g);
         }
 
-        private int GetAverageValue(int[,] f)
+        private byte GetAverageValue(byte[,] f)
         {
             int[,] V = new int[4, 2];
             for (int i = 0; i < 3; i++)
@@ -518,12 +521,12 @@ namespace DIP_1
                 }
             }
 
-            return (int)((double)V[N, 1] / 9.0);
+            return (byte)((double)V[N, 1] / 9.0);
         }
 
         private void сглаживаниеПоОднороднойОкрестностиToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            int[,] f = NoiseForm.GetBrightnessMatrix(originalImageBox.Image);
+            byte[,] f = NoiseForm.GetBrightnessMatrix(originalImageBox.Image);
             SmoothingOver(f);
         }
 
@@ -536,27 +539,21 @@ namespace DIP_1
         #endregion
 
         #region Выделение границ
-
-
-
-
-
-        #endregion
-
+        
         private void лапласианToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            int[,] f = NoiseForm.GetBrightnessMatrix(originalImageBox.Image);
+            byte[,] f = NoiseForm.GetBrightnessMatrix(originalImageBox.Image);
 
             int width = f.GetLength(0);
             int height = f.GetLength(1);
-            int[,] g = new int[width - 2, height - 2];
+            byte[,] g = new byte[width - 2, height - 2];
             int Vf = 0;
             for (int x = 1; x < width - 1; x++)
             {
                 for (int y = 1; y < height - 1; y++)
                 {
                     Vf = f[x + 1, y] + f[x, y + 1] + f[x - 1, y] + f[x, y - 1] - 4 * f[x, y];
-                    g[x - 1, y - 1] = Vf;
+                    g[x - 1, y - 1] = (byte)Vf;
                     if (g[x - 1, y - 1] > 255)
                         g[x - 1, y - 1] = 255;
                     if (g[x - 1, y - 1] < 0)
@@ -565,107 +562,64 @@ namespace DIP_1
             }
             alteredImageBox.Image = GetImageFromMatrix(g);
         }
+        
 
         private void филтрРобертсаToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            int[,] f = NoiseForm.GetBrightnessMatrix(originalImageBox.Image);
+            alteredImageBox.Image = GetImageFromMatrix(GetRobertsEdgeMatrix());
+        }
+
+        private byte[,] GetRobertsEdgeMatrix()
+        {
+            byte[,] f = NoiseForm.GetBrightnessMatrix(originalImageBox.Image);
 
             int width = f.GetLength(0);
             int height = f.GetLength(1);
-            int[,] g = new int[width - 1, height - 1];
+            byte[,] g = new byte[width - 1, height - 1];
             for (int x = 0; x < width - 1; x++)
             {
                 for (int y = 0; y < height - 1; y++)
                 {
-                    g[x, y] = Math.Abs(f[x + 1, y + 1] - f[x, y]) + Math.Abs(f[x, y + 1] - f[x + 1, y]);
+                    g[x, y] = (byte)(Math.Abs(f[x + 1, y + 1] - f[x, y]) + Math.Abs(f[x, y + 1] - f[x + 1, y]));
                     if (g[x, y] > 255)
                         g[x, y] = 255;
                     if (g[x, y] < 0)
                         g[x, y] = 0;
                 }
             }
-            alteredImageBox.Image = GetImageFromMatrix(g);
+            return g;
         }
 
         private void детекторГраницКанниToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            int[,] f = NoiseForm.GetBrightnessMatrix(originalImageBox.Image);
-            CannyOptionsForm canny = new CannyOptionsForm(f);
-            canny.ShowDialog();
-            if (canny.image != null)
-            {
-                alteredImageBox.Image = canny.image;
-            }
+            //byte[,] f = NoiseForm.GetBrightnessMatrix(originalImageBox.Image);
+            ////CannyOptionsForm canny = new CannyOptionsForm(f);
+            //canny.ShowDialog();
+            //if (canny.image != null)
+            //{
+            //    alteredImageBox.Image = canny.image;
+            //}
         }
 
-        private void эрозияToolStripMenuItem_Click(object sender, EventArgs e)
+        private void выделениеКонтуровToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            erosionGroup.Enabled = true;
+
         }
+        #endregion
 
-        private void applyButton_Click(object sender, EventArgs e)
+        private void changeButton_Click(object sender, EventArgs e)
         {
-            int k = 1;
-            if (mask3x3.Checked)
-            {
-                k = 1;
-            }
-            else if (mask5x5.Checked)
-            {
-                k = 2;
-            }
-            else if (mask7x7.Checked)
-            {
-                k = 3;
-            }
-            else if (mask9x9.Checked)
-            {
-                k = 4;
-            }
-            int[,] f = NoiseForm.GetBrightnessMatrix(originalImageBox.Image);
-            int width = f.GetLength(0), height = f.GetLength(1);
-            bool flag = false;
-            Bitmap image = new Bitmap(width - 2 * k, height - 2 * k);
-
-            for (int x = k; x < width - k; x++)
-            {
-                for (int y = k; y < height - k; y++)
-                {
-                    for (int i = -k; i < k; i++)
-                    {
-                        for (int j = -k; j < k; j++)
-                        {
-                            if (f[x + i, y + j] >= 128)
-                            {
-                                flag = true;
-                            }
-                            else
-                            {
-                                flag = false;
-                            }
-                        }
-
-                        if (!flag)
-                            break;
-                    }
-
-                    if (flag)
-                    {
-                        image.SetPixel(x - k, y - k, Color.FromArgb(255, 255, 255));
-                    }
-                    else
-                    {
-                        image.SetPixel(x - k, y - k, Color.FromArgb(0, 0, 0));
-                    }
-                }
-            }
-
-            alteredImageBox.Image = image;
+            originalImageBox.Image = alteredImageBox.Image;
+            originalImage = (Bitmap)originalImageBox.Image;
+            alteredImageBox.Image = null;
+            alteredImage = null;
         }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
             erosionGroup.Enabled = false;
+            originalImageBox.Enabled = false;
+            closeFillModeButton.Hide();
         }
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
@@ -707,7 +661,7 @@ namespace DIP_1
 
             for (int x = 20; x < 40; x++)
             {
-                for(int y = 20; y < 25; y++)
+                for (int y = 20; y < 25; y++)
                 {
                     image.SetPixel(x, y, Color.FromName("black"));
                 }
@@ -715,17 +669,378 @@ namespace DIP_1
             originalImageBox.Image = image;
         }
 
-        private void выделениеКонтуровToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+        #region Морфологическая обработка
 
+
+        private void эрозияToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            erosionGroup.Enabled = true;
         }
 
-        private void changeButton_Click(object sender, EventArgs e)
+        private void applyButton_Click(object sender, EventArgs e)
         {
-            originalImageBox.Image = alteredImageBox.Image;
-            originalImage = (Bitmap)originalImageBox.Image;
-            alteredImageBox.Image = null;
-            alteredImage = null;
+            alteredImageBox.Image = MakeErosion();
+        }
+
+        private Bitmap MakeErosion()
+        {
+            int k = 2;
+            if (mask3x3.Checked)
+            {
+                k = 1;
+            }
+            else if (mask5x5.Checked)
+            {
+                k = 2;
+            }
+            else if (mask7x7.Checked)
+            {
+                k = 3;
+            }
+            else if (mask9x9.Checked)
+            {
+                k = 4;
+            }
+            byte[,] f = NoiseForm.GetBrightnessMatrix(originalImageBox.Image);
+            int width = f.GetLength(0), height = f.GetLength(1);
+            bool flag = false;
+            Bitmap image = new Bitmap(width - 2 * k, height - 2 * k);
+
+            for (int x = k; x < width - k; x++)
+            {
+                for (int y = k; y < height - k; y++)
+                {
+                    for (int i = -k; i < k; i++)
+                    {
+                        for (int j = -k; j < k; j++)
+                        {
+                            if (f[x + i, y + j] >= 128)
+                            {
+                                flag = true;
+                            }
+                            else
+                            {
+                                flag = false;
+                            }
+                        }
+
+                        if (!flag)
+                            break;
+                    }
+
+                    if (flag)
+                    {
+                        image.SetPixel(x - k, y - k, Color.FromArgb(255, 255, 255));
+                    }
+                    else
+                    {
+                        image.SetPixel(x - k, y - k, Color.FromArgb(0, 0, 0));
+                    }
+                }
+            }
+
+            return image;
+        }
+
+        private void заполнениеОбластиToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            closeFillModeButton.Show();
+            originalImageBox.Enabled = true;
+            this.BackColor = Color.FromName("ControlDarkDark");
+            originalImageBox.SizeMode = PictureBoxSizeMode.Normal;
+            alteredImageBox.SizeMode = PictureBoxSizeMode.Normal;
+        }
+        #endregion
+
+        private void closeFillModeButton_Click(object sender, EventArgs e)
+        {
+            closeFillModeButton.Hide();
+            this.BackColor = Color.FromName("Control");
+            originalImageBox.Enabled = false;
+            originalImageBox.SizeMode = PictureBoxSizeMode.Zoom;
+            alteredImageBox.SizeMode = PictureBoxSizeMode.Zoom;
+        }
+
+        private void originalImageBox_MouseClick(object sender, MouseEventArgs e)
+        {
+            if(alteredImageBox.Image != null)
+            {
+                paintedOver = NoiseForm.GetBrightnessMatrix(alteredImageBox.Image);
+            }
+            else
+            {
+                paintedOver = NoiseForm.GetBrightnessMatrix(originalImageBox.Image);
+            }
+            paintedOver[e.X, e.Y] = 0;
+
+            PaintOver(e.X, e.Y + 1);
+            PaintOver(e.X + 1, e.Y);
+            PaintOver(e.X - 1, e.Y);
+            PaintOver(e.X, e.Y - 1);
+
+            int width = paintedOver.GetLength(0), height = paintedOver.GetLength(1), pixel;
+
+            for (int i = 0; i < width; i++)
+                for(int j = 0; j < height; j++)
+                {
+                    pixel = paintedOver[i, j];
+                    try
+                    {
+                        alteredImage.SetPixel(i, j, Color.FromArgb(pixel, pixel, pixel));
+                    }
+                    catch
+                    {
+                        alteredImage = new Bitmap(originalImageBox.Image);
+                        alteredImage.SetPixel(i, j, Color.FromArgb(pixel, pixel, pixel));
+                    }
+                }
+            alteredImageBox.Image = alteredImage;
+        }
+
+        private void PaintOver(int x, int y)
+        {
+            
+            try
+            {
+                if (paintedOver[x, y] < 128)
+                {
+                    return;
+                }
+                else
+                {
+                    paintedOver[x, y] = 0;
+                }
+            }
+            catch { }
+            
+
+            PaintOver(x, y + 1);
+            PaintOver(x + 1, y);
+            PaintOver(x, y - 1);
+            PaintOver(x - 1, y);
+        }
+
+        private void выделениеГраницToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //int[,] f = NoiseForm.GetBrightnessMatrix(originalImageBox.Image);
+            //int[,] g = NoiseForm.GetBrightnessMatrix(MakeErosion());
+
+            //int width = g.GetLength(0), heiht = g.GetLength(1), pixel = 0;
+
+            //Bitmap image = new Bitmap(width, heiht);
+
+            //for (int x = 0; x < width; x++)
+            //    for(int y = 0; y < heiht; y++)
+            //    {
+            //        pixel = f[x + 2, y + 2];
+            //        if (g[x, y] > 10)
+            //            pixel = 0;
+            //        image.SetPixel(x, y, Color.FromArgb(pixel, pixel, pixel));
+            //    }
+
+            //alteredImageBox.Image = image;
+        }
+
+        private void утончениеToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Thinning(originalImageBox.Image as Bitmap);
+        }
+
+        private void Thinning(Bitmap b)
+        {
+            List<int[,]> mask = new List<int[,]>();
+            int[,] x0 = { { 255, 255, 255 }, { -1, 0, -1 }, { 0, 0, 0 } };
+            mask.Add(x0);
+            int[,] x1 = { { -1, 255, 255 }, { 0, 0, 255 }, { 0, 0, -1 } };
+            mask.Add(x1);
+            int[,] x2 = { { 0, -1, 255 }, { 0, 0, 255 }, { 0, -1, 255 } };
+            mask.Add(x2);
+            int[,] x3 = { { 0, 0, -1 }, { 0, 0, 255 }, { -1, 255, 255 } };
+            mask.Add(x3);
+            int[,] x4 = { { 0, 0, 0 }, { -1, 0, -1 }, { 255, 255, 255 } };
+            mask.Add(x4);
+            int[,] x5 = { { -1, 0, 0 }, { 255, 0, 0 }, { 255, 255, -1 } };
+            mask.Add(x5);
+            int[,] x6 = { { 255, -1, 0 }, { 255, 0, 0 }, { 255, -1, 0 } };
+            mask.Add(x6);
+            int[,] x7 = { { 255, 255, -1 }, { 255, 0, 0 }, { -1, 0, 0 } };
+            mask.Add(x7);
+
+
+            Bitmap im = b;
+            Bitmap imResolt = im.Clone() as Bitmap;
+
+            alteredImageBox.Image = imResolt;
+            int maskWidth, maskHeight;
+            bool isChange = true;
+            while (isChange)
+            {
+                isChange = false;
+                for (int k = 0; k < mask.Count; k++)
+                {
+                    maskWidth = mask[k].GetLength(0);
+                    maskHeight = mask[k].GetLength(1);
+                    for (int j = 0; j < im.Height - 3; j++)
+                    {
+                        for (int i = 0; i < im.Width - 3; i++)
+                        {
+                            int sum = 0;
+                            for (int m = 0; m < maskWidth; m++)
+                            {
+                                for (int n = 0; n < maskHeight; n++)
+                                {
+                                    int x = im.GetPixel(i + n, j + m).R;
+                                    int y = mask[k][m, n];
+                                    if ((y == -1) || (x == y))
+                                        sum++;
+
+                                    if (sum == 9)
+                                    {
+                                        imResolt.SetPixel(i + 1, j + 1, Color.White); // + 1 + 1
+                                        isChange = true;
+
+                                        //alteredImageBox.Refresh();
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    alteredImageBox.Refresh();
+                    im = imResolt.Clone() as Bitmap;
+                }
+            }
+            MessageBox.Show("Выполнение утончения завершено!", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        int[,] maskIrosion = new int[3, 3] { { 255, 255, 255 }, { 255, 255, 255 }, { 255, 255, 255 } };
+
+        private byte[,] Erosion(byte[,] b)
+        {
+            byte[,] g = new byte[b.GetLength(0), b.GetLength(1)];
+            for (int i = 1; i < b.GetLength(0) - 1; i++)
+            {
+                for (int j = 1; j < b.GetLength(1) - 1; j++)
+                {
+                    if((b[i - 1, j + 1] == 255)&&(b[i - 1, j] == 255) && (b[i - 1, j - 1] == 255) && (b[i, j + 1] == 255) && (b[i, j] == 255) && (b[i, j - 1] == 255) && (b[i + 1, j + 1] == 255) && (b[i + 1, j] == 255) && (b[i+1,j-1] == 255))
+                    {
+                        g[i, j] = 255;
+                    }
+                }
+            }
+            return g;
+        }
+        private byte[,] Dilation(byte[,] b)
+        {
+            byte[,] g = new byte[b.GetLength(0), b.GetLength(1)];
+            for (int i = 1; i < b.GetLength(0) - 1; i++)
+            {
+                for (int j = 1; j < b.GetLength(1) - 1; j++)
+                {
+                    if ((b[i - 1, j + 1] == 255) || (b[i - 1, j] == 255) || (b[i - 1, j - 1] == 255) || (b[i, j + 1] == 255) || (b[i, j] == 255) || (b[i, j - 1] == 255) || (b[i + 1, j + 1] == 255) || (b[i + 1, j] == 255) || (b[i + 1, j - 1] == 255))
+                    {
+                        g[i, j] = 255;
+                    }
+                }
+            }
+            return g;
+        }
+        private byte[,] Opening(byte[,] f)
+        {
+            return Dilation(Erosion(f));
+        }
+
+        private byte[,] Skeletonization(byte[,] image)
+        {
+            int count = 0;
+            List<byte[,]> erosions = new List<byte[,]>();
+            erosions.Add(image);
+            int width = image.GetLength(0), height = image.GetLength(1);
+            bool flag = true;
+            while (flag)
+            {
+                flag = false;
+                count++;
+                byte[,] g = new byte[width, height];
+                for (int i = 1; i < width - 1; i++)
+                {
+                    for (int j = 1; j < height - 1; j++)
+                    {
+                        if ((erosions[count - 1][i - 1, j + 1] == 255) && (erosions[count - 1][i - 1, j] == 255) && (erosions[count - 1][i - 1, j - 1] == 255) && (erosions[count - 1][i, j + 1] == 255) && (erosions[count - 1][i, j] == 255) && (erosions[count - 1][i, j - 1] == 255) && (erosions[count - 1][i + 1, j + 1] == 255) && (erosions[count - 1][i + 1, j] == 255) && (erosions[count - 1][i + 1, j - 1] == 255))
+                        {
+                            g[i, j] = 255;
+                            flag = true;
+                        }
+                    }
+                }
+                erosions.Add(g);
+            }
+
+            List<byte[,]> openings = new List<byte[,]>();
+            List<byte[,]> differences = new List<byte[,]>();
+            for(int i = 0; i < count; i++)
+            {
+                openings.Add(Opening(erosions[i]));
+                differences.Add(GetDifferenceOfSets(erosions[i], openings[i]));
+            }
+            erosions.Clear();
+            byte[,] skeleton = new byte[width, height];
+
+            for(int i = 0; i < count; i++)
+                for(int x = 0; x < width; x++)
+                    for(int y = 0; y < height; y++)
+                    {
+                        if (skeleton[x, y] == 0)
+                            skeleton[x, y] = differences[i][x, y];
+                    }
+
+            return skeleton;
+            
+        }
+
+        private byte[,] GetDifferenceOfSets(byte[,] A, byte[,] B)
+        {
+            int width = A.GetLength(0), height = A.GetLength(1);
+            byte[,] difference = new byte[width, height];
+
+            for(int i = 0; i < width; i++)
+                for(int j = 0; j < height; j++)
+                {
+                    if ((A[i, j] == 255) && (B[i, j] == 0))
+                        difference[i, j] = 255;
+                }
+
+            return difference;
+        }
+        
+        private byte[,] MakeBinaryImage(byte[,] f)
+        {
+            int width = f.GetLength(0), height = f.GetLength(1);
+            byte[,] g = new byte[width, height];
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height; j++)
+                {
+                    g[i, j] = f[i, j] > 128 ? (byte)255 : (byte)0;
+                }
+            }
+
+            return g;
+        }
+
+        private void эрозияToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            byte[,] g = MakeBinaryImage(NoiseForm.GetBrightnessMatrix(originalImage));
+            byte[,] f = Erosion(g);
+            alteredImageBox.Image = GetImageFromMatrix(f);
+        }
+
+        private void построениеОстоваToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Enabled = false;
+            byte[,] f = MakeBinaryImage(NoiseForm.GetBrightnessMatrix(originalImageBox.Image));
+            alteredImageBox.Image = GetImageFromMatrix(Skeletonization(f));
+            Enabled = true;
         }
     }
 }

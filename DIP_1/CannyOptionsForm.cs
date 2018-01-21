@@ -14,15 +14,19 @@ namespace DIP_1
     {
         public Bitmap image;
         private int[,] f;
+        private int width;
+        private int height;
         public CannyOptionsForm(int[,] f)
         {
             this.f = f;
+            width = f.GetLength(0);
+            height = f.GetLength(1);
             InitializeComponent();
         }
 
         private void applyButton_Click(object sender, EventArgs e)
         {
-            CannyDetector();
+            Canny();
             Close();
         }
 
@@ -78,6 +82,36 @@ namespace DIP_1
                     image.SetPixel(x, y, Color.FromArgb((int)d[x, y], (int)d[x, y], (int)d[x, y]));
                 }
             }
+        }
+
+        private void Canny()
+        {
+            int[,] g = new int[width - 2, height - 2];
+            double[,] d = new double[width, height];
+
+            double sigma = (double)sigmaParametr.Value;
+            double K1 = 1.0D / (2.0D * Math.PI * sigma * sigma);
+            double K2;
+            for (int x = 0; x < width; x++)
+                for(int y = 0; y < height; y++)
+                {
+                    K2 = Math.Exp((x * x + y * y) / (2 * sigma * sigma));
+                    if (K2 > 255) K2 = 255;
+                    if (K2 < 0) K2 = 0;
+                    d[x, y] = f[x, y] * K1 * K2;
+                }
+            image = new Bitmap(width - 2, height - 2);
+            for (int x = 1; x < width - 1; x++)
+                for (int y = 1; y < height - 1; y++)
+                {
+                    double Gx = Math.Abs(d[x + 1, y + 1] - d[x, y]);
+                    double Gy = Math.Abs(d[x, y + 1] - d[x + 1, y]);
+                    double E = Math.Sqrt(Gx * Gx + Gy * Gy);
+                    g[x - 1, y - 1] = (int)E;
+                    if (g[x - 1, y - 1] > 255) g[x - 1, y - 1] = 255;
+                    if (g[x - 1, y - 1] < 0) g[x - 1, y - 1] = 0;
+                    image.SetPixel(x - 1, y - 1, Color.FromArgb(g[x - 1, y - 1], g[x - 1, y - 1], g[x - 1, y - 1]));
+                }
         }
     }
 }
